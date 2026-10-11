@@ -1,0 +1,40 @@
+# Godot 4+ engine cache and metadata
+.godot/
+
+# Godot 3.x cache (legacy compatibility)
+.import/
+
+# Imported translations
+*.translation
+
+# Mono / C# specifics
+.mono/
+data_*/
+mono_crash.*.json
+
+# Build and export outputs
+export/
+exports/
+build/
+builds/
+bin/
+*.apk
+*.aab
+*.ipa
+*.exe
+*.zip
+*.pck
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+
+# Editor and IDE configurations
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*~
