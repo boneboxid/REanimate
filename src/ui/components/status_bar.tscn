@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://bvstatusbar01"]
+
+[ext_resource type="Script" path="res://src/ui/components/status_bar.gd" id="1_status"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_status_bg"]
+content_margin_left = 10.0
+content_margin_top = 2.0
+content_margin_right = 10.0
+content_margin_bottom = 2.0
+bg_color = Color(0.13, 0.13, 0.15, 1)
+border_width_top = 1
+border_color = Color(0.22, 0.22, 0.25, 1)
+
+[node name="StatusBar" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_status_bg")
+script = ExtResource("1_status")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatusLabel" type="Label" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 11
+text = " Ready"
+
+[node name="Spacer" type="Control" parent="HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShortcutHint" type="Label" parent="HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.52, 0.58, 1)
+theme_override_font_sizes/font_size = 11
+text = "Space: Pan | Wheel: Zoom | F6: KF"
+
+[node name="VSeparator1" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="CursorPosLabel" type="Label" parent="HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.72, 0.78, 1)
+theme_override_font_sizes/font_size = 11
+text = "X: 0, Y: 0"
+horizontal_alignment = 2
+
+[node name="VSeparator2" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="ZoomInfoLabel" type="Label" parent="HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.72, 0.78, 1)
+theme_override_font_sizes/font_size = 11
+text = "90%"
+horizontal_alignment = 2

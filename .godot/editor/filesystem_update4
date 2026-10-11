@@ -1,0 +1,5 @@
+res://src/ui/editor_main.tscn
+res://src/ui/stage_canvas.gd
+res://screenshot_helper.gd
+res://src/ui/editor_main.gd
+res://src/ui/timeline_grid.gd

@@ -1,0 +1,126 @@
+[gd_scene format=3 uid="uid://bvtopmenubar01"]
+
+[ext_resource type="Script" path="res://src/ui/components/top_menu_bar.gd" id="1_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_bg"]
+content_margin_left = 8.0
+content_margin_top = 2.0
+content_margin_right = 8.0
+content_margin_bottom = 2.0
+bg_color = Color(0.14, 0.14, 0.16, 1)
+border_width_bottom = 1
+border_color = Color(0.22, 0.22, 0.26, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+content_margin_left = 6.0
+content_margin_top = 2.0
+content_margin_right = 6.0
+content_margin_bottom = 2.0
+bg_color = Color(0.2, 0.2, 0.23, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="TopMenuBar" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_bg")
+script = ExtResource("1_menu")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AppTitle" type="Label" parent="HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.38, 0.38, 1)
+theme_override_font_sizes/font_size = 13
+text = "⚡ REanimate"
+
+[node name="VSeparator1" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="NewFileBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Create new blank project (Ctrl+N)"
+text = "New"
+
+[node name="OpenFileBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Open saved .rean or .json project (Ctrl+O)"
+text = "Open"
+
+[node name="SaveFileBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Save project file (Ctrl+S)"
+text = "Save"
+
+[node name="VSeparator2" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="ExportJsonBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Export to Adobe Animate Texture Atlas JSON format"
+text = "Atlas JSON"
+
+[node name="ExportPngSeqBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Export all animation frames as PNG sequence"
+text = "PNG Seq"
+
+[node name="VSeparator3" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="ResetViewBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Reset camera position and zoom (Ctrl+0)"
+text = "100%"
+
+[node name="Spacer" type="Control" parent="HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CurrentToolLabel" type="Label" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 12
+text = "Tool: Select"
+
+[node name="VSeparator4" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="ToggleToolsBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Toggle Left Toolbar"
+text = "◨ Tools"
+
+[node name="ToggleTimelineBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Toggle Bottom Timeline"
+text = "◫ Timeline"
+
+[node name="ToggleInspectorBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+tooltip_text = "Toggle Right Inspector Panel"
+text = "◧ Inspector"

@@ -1,0 +1,82 @@
+[gd_scene format=3 uid="uid://df7s8ek3yquh2"]
+
+[ext_resource type="Script" uid="uid://c00s4odndqwir" path="res://src/ui/editor_main.gd" id="1_editor"]
+[ext_resource type="PackedScene" path="res://src/ui/components/top_menu_bar.tscn" id="2_menu"]
+[ext_resource type="PackedScene" path="res://src/ui/components/tool_bar.tscn" id="3_tools"]
+[ext_resource type="PackedScene" path="res://src/ui/components/stage_panel.tscn" id="4_stage"]
+[ext_resource type="PackedScene" path="res://src/ui/components/timeline_dock.tscn" id="5_timeline"]
+[ext_resource type="PackedScene" path="res://src/ui/components/inspector_dock.tscn" id="6_inspector"]
+[ext_resource type="PackedScene" path="res://src/ui/components/status_bar.tscn" id="7_status"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dark_bg"]
+bg_color = Color(0.11, 0.11, 0.13, 1)
+
+[node name="EditorMain" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_editor")
+
+[node name="MainBackground" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dark_bg")
+
+[node name="RootVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="TopMenuBar" parent="RootVBox" instance=ExtResource("2_menu")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="MiddleArea" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="ToolBar" parent="RootVBox/MiddleArea" instance=ExtResource("3_tools")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StageInspectorSplit" type="HSplitContainer" parent="RootVBox/MiddleArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterVSplit" type="VSplitContainer" parent="RootVBox/MiddleArea/StageInspectorSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StagePanel" parent="RootVBox/MiddleArea/StageInspectorSplit/CenterVSplit" instance=ExtResource("4_stage")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TimelineDock" parent="RootVBox/MiddleArea/StageInspectorSplit/CenterVSplit" instance=ExtResource("5_timeline")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="InspectorDock" parent="RootVBox/MiddleArea/StageInspectorSplit" instance=ExtResource("6_inspector")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StatusBar" parent="RootVBox" instance=ExtResource("7_status")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="EditorFileDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Choose File"
+access = 2

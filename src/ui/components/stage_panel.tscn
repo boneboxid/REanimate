@@ -1,0 +1,96 @@
+[gd_scene format=3 uid="uid://bvstagepanel01"]
+
+[ext_resource type="Script" path="res://src/ui/components/stage_panel.gd" id="1_stage"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stage_bg"]
+bg_color = Color(0.18, 0.18, 0.21, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud"]
+content_margin_left = 6.0
+content_margin_top = 3.0
+content_margin_right = 6.0
+content_margin_bottom = 3.0
+bg_color = Color(0.12, 0.12, 0.14, 0.85)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.28, 0.32, 0.8)
+
+[node name="StagePanel" type="PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_stage_bg")
+script = ExtResource("1_stage")
+
+[node name="StageContainer" type="SubViewportContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="StageViewport" type="SubViewport" parent="StageContainer"]
+unique_name_in_owner = true
+handle_input_locally = false
+size = Vector2i(256, 256)
+render_target_update_mode = 4
+
+[node name="StageCamera" type="Camera2D" parent="StageContainer/StageViewport"]
+unique_name_in_owner = true
+
+[node name="HudMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="HudHBox" type="HBoxContainer" parent="HudMargin"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+mouse_filter = 0
+theme_override_constants/separation = 4
+
+[node name="HudPanel" type="PanelContainer" parent="HudMargin/HudHBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud")
+
+[node name="HBoxControls" type="HBoxContainer" parent="HudMargin/HudHBox/HudPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ZoomLabel" type="Label" parent="HudMargin/HudHBox/HudPanel/HBoxControls"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.92, 1)
+theme_override_font_sizes/font_size = 11
+text = "90%"
+
+[node name="ZoomOutBtn" type="Button" parent="HudMargin/HudHBox/HudPanel/HBoxControls"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 20)
+layout_mode = 2
+tooltip_text = "Zoom Out (Wheel Down)"
+text = "-"
+
+[node name="ZoomResetBtn" type="Button" parent="HudMargin/HudHBox/HudPanel/HBoxControls"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 20)
+layout_mode = 2
+tooltip_text = "Reset View (Ctrl+0)"
+text = "Fit"
+
+[node name="ZoomInBtn" type="Button" parent="HudMargin/HudHBox/HudPanel/HBoxControls"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 20)
+layout_mode = 2
+tooltip_text = "Zoom In (Wheel Up)"
+text = "+"

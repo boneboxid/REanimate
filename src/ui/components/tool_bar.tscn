@@ -1,0 +1,115 @@
+[gd_scene format=3 uid="uid://bvtoolbar01"]
+
+[ext_resource type="Script" path="res://src/ui/components/tool_bar.gd" id="1_tool"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tool_bg"]
+content_margin_left = 6.0
+content_margin_top = 8.0
+content_margin_right = 6.0
+content_margin_bottom = 8.0
+bg_color = Color(0.16, 0.16, 0.19, 1)
+border_width_right = 1
+border_color = Color(0.24, 0.24, 0.28, 1)
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_tools"]
+
+[node name="ToolBar" type="PanelContainer"]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tool_bg")
+script = ExtResource("1_tool")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ToolSelect" type="Button" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+tooltip_text = "Select Tool (V) - Select and move items"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_tools")
+text = "↖ Select"
+
+[node name="ToolTransform" type="Button" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+tooltip_text = "Free Transform Tool - Scale & Rotate handles"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tools")
+text = "⤧ Transf"
+
+[node name="ToolBrush" type="Button" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+tooltip_text = "Freehand Brush (B) - Draw smooth lines"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tools")
+text = "🖌 Brush"
+
+[node name="ToolRect" type="Button" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+tooltip_text = "Rectangle Tool (R) - Drag to draw box"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tools")
+text = "▭ Rect"
+
+[node name="ToolCircle" type="Button" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+tooltip_text = "Oval / Circle Tool (O) - Drag to draw circle"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tools")
+text = "◯ Circle"
+
+[node name="HSeparator1" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="StrokeLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
+theme_override_font_sizes/font_size = 11
+text = "Stroke (px):"
+horizontal_alignment = 1
+
+[node name="StrokeWidthSpin" type="SpinBox" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 50.0
+value = 3.0
+
+[node name="ColorLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
+theme_override_font_sizes/font_size = 11
+text = "Draw Color:"
+horizontal_alignment = 1
+
+[node name="QuickColorPicker" type="ColorPickerButton" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="Spacer" type="Control" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HintsLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.55, 1)
+theme_override_font_sizes/font_size = 10
+text = "V: Select
+B: Brush
+R: Rect
+O: Circle"
+horizontal_alignment = 1
