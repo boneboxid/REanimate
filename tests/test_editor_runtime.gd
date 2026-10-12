@@ -17,6 +17,10 @@ static func run_all_tests(tree: SceneTree) -> void:
 	test_new_project_resets_undo(editor)
 	test_file_io(editor)
 	await test_png_export(editor)
+	test_project_menu_and_settings(editor)
+	test_project_launcher(editor)
+	test_library_panel(editor)
+	test_stage_context_menu(editor)
 	editor.queue_free()
 	print(">>> ALL EDITOR RUNTIME SMOKE TESTS PASSED! <<<")
 
@@ -212,3 +216,212 @@ static func test_png_export(ed: EditorMain) -> void:
 	await ed._on_dir_dialog_selected("user://runtime_test/png")
 	assert(ed.current_frame == 0, "PNG export restores the current frame")
 	print("  [OK] R8. PNG sequence export completes (renderer-dependent frame count)")
+
+static func test_project_menu_and_settings(ed: EditorMain) -> void:
+	# 1. Verifikasi ProjectMenuBtn dan popup item
+	var proj_btn = ed.top_menu_bar.project_menu_btn
+	assert(proj_btn != null, "TopMenuBar must have project_menu_btn")
+	var popup = proj_btn.get_popup()
+	assert(popup.item_count >= 10, "Project popup menu must have items")
+	
+	# 2. Buka ProjectSettingsDialog via menu action dan via shortcut Ctrl+J
+	ed._on_menu_action("project_settings")
+	assert(ed.project_settings_dialog.visible, "ProjectSettingsDialog must be visible on project_settings action")
+	ed.project_settings_dialog.hide()
+	
+	var ev_ctrl_j = InputEventKey.new()
+	ev_ctrl_j.keycode = KEY_J
+	ev_ctrl_j.ctrl_pressed = true
+	ev_ctrl_j.pressed = true
+	ed._unhandled_key_input(ev_ctrl_j)
+	assert(ed.project_settings_dialog.visible, "ProjectSettingsDialog must open on Ctrl+J shortcut")
+	
+	# 3. Ubah pengaturan via dialog dan konfirmasi
+	ed.proj_name_edit.text = "My_Awesome_Cartoon"
+	ed.proj_preset_option.selected = 1
+	ed._on_project_dialog_preset_selected(1) # FHD 1920x1080
+	assert(ed.proj_width_spin.value == 1920 and ed.proj_height_spin.value == 1080, "Preset FHD sets dimensions")
+	ed.proj_fps_spin.value = 24
+	ed.proj_max_frames_spin.value = 120
+	ed.proj_bg_color_picker.color = Color(0.1, 0.2, 0.3, 1.0)
+	
+	ed._on_project_settings_dialog_confirmed()
+	assert(ed.project_doc.name == "My_Awesome_Cartoon", "Project name must be updated")
+	assert(ed.project_doc.stage_size == Vector2(1920, 1080), "Stage size must be updated to FHD")
+	assert(ed.project_doc.fps == 24, "FPS must be updated to 24")
+	assert(ed.project_doc.max_frames == 120, "Max frames must be updated to 120")
+	assert(ed.project_doc.bg_color == Color(0.1, 0.2, 0.3, 1.0), "Background color must match")
+	
+	# 4. Uji Project Summary Info
+	ed._on_menu_action("project_info")
+	assert(ed.status_bar.status_label.text.contains("My_Awesome_Cartoon"), "Status bar displays project info")
+	
+	# 5. Uji Quick Preset Actions
+	ed._on_menu_action("preset_res_mobile") # 1080x1920
+	assert(ed.project_doc.stage_size == Vector2(1080, 1920), "Preset mobile sets 1080x1920")
+	ed._on_menu_action("preset_res_square") # 1080x1080
+	assert(ed.project_doc.stage_size == Vector2(1080, 1080), "Preset square sets 1080x1080")
+	ed._on_menu_action("preset_fps_60")
+	assert(ed.project_doc.fps == 60, "Preset fps sets 60")
+	
+	# 6. Uji Export HTML5 Web Player
+	ed._on_menu_action("export_html")
+	assert(ed.current_dialog_action == "export_html", "current_dialog_action is export_html")
+	var html_path = "user://runtime_test/player.html"
+	ed._on_file_dialog_selected(html_path)
+	assert(FileAccess.file_exists(html_path), "HTML5 Player file must be created")
+	var html_text = FileAccess.get_file_as_string(html_path)
+	assert(html_text.contains("<!DOCTYPE html>") and html_text.contains("REanimate Web Player"), "HTML5 content is valid")
+	
+	print("  [OK] R9. Project Menu: Project Settings (Ctrl+J), presets, info summary & HTML5 export")
+
+static func test_project_launcher(ed: EditorMain) -> void:
+	# 1. Pastikan node ProjectLauncher terpasang
+	assert(ed.project_launcher != null, "ProjectLauncher node must be present")
+	
+	# 2. Buka launcher via menu action "project_launcher"
+	ed._on_menu_action("project_launcher")
+	assert(ed.project_launcher.visible, "ProjectLauncher must be visible after project_launcher menu action")
+	
+	# 3. Test presets dan input custom di launcher UI
+	assert(ed.project_launcher.btn_preset_hd != null, "Preset HD button exists")
+	assert(ed.project_launcher.btn_preset_retro != null, "Preset Retro button exists")
+	ed.project_launcher.custom_w_spin.value = 1280
+	ed.project_launcher.custom_h_spin.value = 720
+	assert(ed.project_launcher.custom_w_spin.value == 1280 and ed.project_launcher.custom_h_spin.value == 720, "HD custom dimensions updated")
+	
+	# 4. Tambahkan recent project dan pastikan tersimpan
+	var dummy_path = "user://runtime_test/launcher_test.rean"
+	ed.project_launcher.add_recent_project(dummy_path)
+	assert(ed.project_launcher.recent_projects.has(dummy_path), "Recent project path stored in list")
+	
+	# 5. Buat project baru dari launcher
+	ed._on_launcher_project_created("Super Animation", Vector2(1920, 1080), 30, 240, Color(0.2, 0.2, 0.2, 1.0))
+	assert(ed.project_doc.name == "Super Animation", "Project created with correct name")
+	assert(ed.project_doc.stage_size == Vector2(1920, 1080), "Project created with correct size")
+	assert(ed.project_doc.fps == 30, "Project created with 30 FPS")
+	assert(ed.project_doc.max_frames == 240, "Project created with 240 max frames")
+	assert(not ed.project_launcher.visible, "ProjectLauncher must be hidden after creating project")
+	
+	# 6. Simpan project ke disk dan buka via launcher open recent
+	ed.project_doc.save_to_file(dummy_path)
+	ed._open_project_launcher()
+	assert(ed.project_launcher.visible, "Launcher re-opened")
+	ed._on_launcher_open_recent(dummy_path)
+	assert(ed.project_doc.name == "Super Animation", "Project re-opened correctly via launcher")
+	assert(not ed.project_launcher.visible, "Launcher hidden after opening recent project")
+	
+	# 7. Test tombol close launcher
+	ed._open_project_launcher()
+	ed.project_launcher.btn_close_launcher.pressed.emit()
+	assert(not ed.project_launcher.visible, "Launcher closed via close button")
+	
+	print("  [OK] R10. Project Launcher / Welcome Screen: Presets, Custom creation, Recent projects list & Open recent")
+
+static func test_library_panel(ed: EditorMain) -> void:
+	# 1. Pastikan node LibraryDock terpasang
+	assert(ed.library_dock != null, "LibraryDock node must be present")
+	
+	# 2. Test toggle panel via action dan shortcut Ctrl+L / F11
+	ed.library_dock.visible = false
+	ed._on_toggle_panel("library")
+	assert(ed.library_dock.visible, "Library dock toggled visible via _on_toggle_panel")
+	
+	var ev_ctrl_l = InputEventKey.new()
+	ev_ctrl_l.keycode = KEY_L
+	ev_ctrl_l.ctrl_pressed = true
+	ev_ctrl_l.pressed = true
+	ed._unhandled_key_input(ev_ctrl_l)
+	assert(not ed.library_dock.visible, "Ctrl+L toggles library dock hidden")
+	
+	var ev_f11 = InputEventKey.new()
+	ev_f11.keycode = KEY_F11
+	ev_f11.pressed = true
+	ed._unhandled_key_input(ev_f11)
+	assert(ed.library_dock.visible, "F11 toggles library dock visible")
+	
+	# 3. Test pembuatan symbol baru dari Library
+	var lib_count_before = ed.project_doc.library.size()
+	ed._on_library_create_symbol("Player_Walk", "movie_clip", 4)
+	assert(ed.project_doc.library.size() == lib_count_before + 1, "New symbol created in project library")
+	
+	var sym_id = ""
+	for id in ed.project_doc.library:
+		if ed.project_doc.library[id].name == "Player_Walk":
+			sym_id = id
+			break
+	assert(sym_id != "", "Created symbol ID found in library")
+	assert(ed.editing_symbol_id == sym_id, "Automatically enters symbol in-place edit mode")
+	ed._exit_symbol_editing()
+	assert(ed.editing_symbol_id == "", "Exited symbol edit mode back to Scene 1")
+	
+	# 4. Test duplikasi symbol
+	ed._on_library_duplicate_symbol(sym_id)
+	assert(ed.project_doc.library.size() == lib_count_before + 2, "Symbol duplicated in library")
+	var dup_id = ""
+	for id in ed.project_doc.library:
+		if ed.project_doc.library[id].name == "Player_Walk Copy":
+			dup_id = id
+			break
+	assert(dup_id != "", "Duplicated symbol ID found")
+	
+	# 5. Test rename symbol
+	ed._on_library_rename_symbol(dup_id, "Player_Run")
+	assert(ed.project_doc.library[dup_id].name == "Player_Run", "Symbol renamed successfully")
+	
+	# 6. Test Place on Stage (memasukkan instance symbol ke Stage)
+	var items_before = ed.project_doc.items.size()
+	ed._on_library_place_symbol(sym_id)
+	assert(ed.project_doc.items.size() == items_before + 1, "Symbol instance placed on stage")
+	var placed_item: StageItem = ed.project_doc.items[ed.selected_item_id]
+	assert(placed_item.shape_type == "symbol", "Placed item has shape_type == symbol")
+	assert(placed_item.library_ref == sym_id, "Placed item references correct symbol")
+	
+	# 7. Test Filter / Search symbols di Library list
+	ed.library_dock.search_edit.text = "Run"
+	ed.library_dock.search_edit.text_changed.emit("Run")
+	assert(ed.library_dock.symbol_list.item_count == 1, "Filter displays only matching symbols")
+	ed.library_dock.search_edit.text = ""
+	ed.library_dock.search_edit.text_changed.emit("")
+	assert(ed.library_dock.symbol_list.item_count >= 2, "Clearing filter restores all symbols")
+	
+	# 8. Test Delete symbol
+	ed._on_library_delete_symbol(dup_id)
+	assert(not ed.project_doc.library.has(dup_id), "Symbol deleted from library")
+	
+	# 9. Test Close button Library dock
+	ed.library_dock.btn_close_library.pressed.emit()
+	assert(not ed.library_dock.visible, "Library dock closed via close button")
+	
+	print("  [OK] R11. Flash Library Panel: Preview, New Symbol (Ctrl+F8), Duplicate, Rename, Filter, Place to Stage & Shortcuts (Ctrl+L/F11)")
+
+static func test_stage_context_menu(ed: EditorMain) -> void:
+	# 1. Pastikan node StageContextMenu ada
+	assert(ed.stage_context_menu != null, "StageContextMenu node must be present")
+	
+	# 2. Test klik kanan pada objek mentah (raw shape) di Stage
+	ed._on_new_project()
+	var raw_item_id: String = ed.project_doc.items.keys()[0]
+	ed._on_stage_item_selected(raw_item_id)
+	
+	ed._on_stage_context_menu_requested(Vector2(250, 250), raw_item_id)
+	assert(ed.stage_context_menu.visible, "Context menu pops up on raw object right-click")
+	assert(ed.stage_context_menu.item_count >= 8, "Context menu contains full suite of object actions")
+	
+	# 3. Test memilih aksi Convert to Symbol... (F8) dari Context Menu
+	ed._on_context_menu_item_selected(1)
+	assert(ed.symbol_dialog.visible, "SymbolDialog (F8) is opened via right-click Convert to Symbol")
+	ed.symbol_dialog.hide()
+	
+	# 4. Test memilih aksi Cut, Copy, Duplicate dari Context Menu
+	var count_before = ed.project_doc.items.size()
+	ed._on_context_menu_item_selected(6) # Duplicate
+	assert(ed.project_doc.items.size() == count_before + 1, "Duplicate action via context menu works")
+	
+	# 5. Test klik kanan di area panggung kosong
+	ed._on_stage_item_selected("")
+	ed._on_stage_context_menu_requested(Vector2(400, 300), "")
+	assert(ed.stage_context_menu.visible, "Context menu pops up on empty stage right-click")
+	ed.stage_context_menu.hide()
+	
+	print("  [OK] R12. Stage Right-Click Context Menu: Raw Object to Symbol (F8), Cut/Copy/Paste, Duplicate, Group & Empty Stage Actions")

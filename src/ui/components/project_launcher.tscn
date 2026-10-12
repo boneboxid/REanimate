@@ -1,0 +1,293 @@
+[gd_scene format=3 uid="uid://3fbw6d7yqsuq"]
+
+[ext_resource type="Script" path="res://src/ui/components/project_launcher.gd" id="1_launcher"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_overlay_bg"]
+bg_color = Color(0.1, 0.1, 0.12, 0.98)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.16, 0.16, 0.19, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24, 0.24, 0.29, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_preset_btn"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.2, 0.2, 0.24, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.28, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_primary_btn"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.85, 0.25, 0.25, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="ProjectLauncher" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_overlay_bg")
+script = ExtResource("1_launcher")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxMain" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HeaderBar" type="HBoxContainer" parent="Margin/VBoxMain"]
+layout_mode = 2
+
+[node name="AppLogoVBox" type="VBoxContainer" parent="Margin/VBoxMain/HeaderBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AppTitle" type="Label" parent="Margin/VBoxMain/HeaderBar/AppLogoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 22
+text = "⚡ REanimate Project Manager"
+
+[node name="AppSubtitle" type="Label" parent="Margin/VBoxMain/HeaderBar/AppLogoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.72, 1)
+theme_override_font_sizes/font_size = 12
+text = "Adobe Flash / Animate 2D Vector Animation Suite"
+
+[node name="CloseLauncherBtn" type="Button" parent="Margin/VBoxMain/HeaderBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "✕ Close to Canvas"
+
+[node name="HSeparator" type="HSeparator" parent="Margin/VBoxMain"]
+layout_mode = 2
+
+[node name="ColumnsHBox" type="HBoxContainer" parent="Margin/VBoxMain"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="LeftColRecent" type="PanelContainer" parent="Margin/VBoxMain/ColumnsHBox"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="RecentVBox" type="VBoxContainer" parent="Margin/VBoxMain/ColumnsHBox/LeftColRecent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RecentTitle" type="Label" parent="Margin/VBoxMain/ColumnsHBox/LeftColRecent/RecentVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "🕒 Recent Projects"
+
+[node name="RecentItemList" type="ItemList" parent="Margin/VBoxMain/ColumnsHBox/LeftColRecent/RecentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+select_mode = 1
+
+[node name="RecentActionsHBox" type="HBoxContainer" parent="Margin/VBoxMain/ColumnsHBox/LeftColRecent/RecentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OpenProjBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/LeftColRecent/RecentVBox/RecentActionsHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "📂 Open File..."
+
+[node name="ImportFlaBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/LeftColRecent/RecentVBox/RecentActionsHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "📁 Import .FLA"
+
+[node name="ClearRecentBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/LeftColRecent/RecentVBox/RecentActionsHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "Clear"
+
+[node name="RightColCreate" type="PanelContainer" parent="Margin/VBoxMain/ColumnsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="CreateScroll" type="ScrollContainer" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate"]
+layout_mode = 2
+
+[node name="CreateVBox" type="VBoxContainer" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="PresetsHeader" type="Label" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "✨ Quick Preset Templates"
+
+[node name="PresetsGrid" type="GridContainer" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="PresetFhdBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/PresetsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "📺 Full HD (1080p)\n1920 × 1080 @ 24fps"
+
+[node name="PresetHdBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/PresetsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "💻 HD Standard (720p)\n1280 × 720 @ 30fps"
+
+[node name="PresetMobileBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/PresetsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "📱 Mobile Vertical\n1080 × 1920 @ 30fps"
+
+[node name="PresetSquareBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/PresetsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "📸 Square Post\n1080 × 1080 @ 30fps"
+
+[node name="PresetRetroBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/PresetsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "🎮 Retro Flash Classic\n800 × 450 @ 24fps"
+
+[node name="HSeparator2" type="HSeparator" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox"]
+layout_mode = 2
+
+[node name="CustomHeader" type="Label" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "⚙ Custom Project Settings"
+
+[node name="CustomGrid" type="GridContainer" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="CLbl1" type="Label" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+layout_mode = 2
+text = "Project Name:"
+
+[node name="CustomNameEdit" type="LineEdit" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "My_Animation"
+
+[node name="CLbl2" type="Label" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+layout_mode = 2
+text = "Stage Width (px):"
+
+[node name="CustomWidthSpin" type="SpinBox" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 100.0
+max_value = 7680.0
+value = 1280.0
+
+[node name="CLbl3" type="Label" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+layout_mode = 2
+text = "Stage Height (px):"
+
+[node name="CustomHeightSpin" type="SpinBox" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 100.0
+max_value = 4320.0
+value = 720.0
+
+[node name="CLbl4" type="Label" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+layout_mode = 2
+text = "Frame Rate (FPS):"
+
+[node name="CustomFpsSpin" type="SpinBox" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 120.0
+value = 30.0
+
+[node name="CLbl5" type="Label" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+layout_mode = 2
+text = "Max Frames:"
+
+[node name="CustomFramesSpin" type="SpinBox" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 9999.0
+value = 60.0
+
+[node name="CLbl6" type="Label" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+layout_mode = 2
+text = "Background Color:"
+
+[node name="CustomBgColorPicker" type="ColorPickerButton" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox/CustomGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Color"
+color = Color(0.98, 0.98, 0.98, 1)
+
+[node name="CreateCustomBtn" type="Button" parent="Margin/VBoxMain/ColumnsHBox/RightColCreate/CreateScroll/CreateVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_primary_btn")
+text = "✨ Create Project"

@@ -56,17 +56,25 @@ static func from_dict(d: Dictionary) -> Element:
 			sh.polystar_sides = int(d.get("polystar_sides", 5))
 			sh.is_star = bool(d.get("is_star", false))
 			sh.star_inner_radius_ratio = float(d.get("star_inner_radius_ratio", 0.5))
+			var cr = d.get("corner_radius", [0.0, 0.0, 0.0, 0.0])
+			if cr is Array and cr.size() >= 4:
+				sh.corner_radius = Vector4(cr[0], cr[1], cr[2], cr[3])
+			sh.oval_start_angle = float(d.get("oval_start_angle", 0.0))
+			sh.oval_end_angle = float(d.get("oval_end_angle", TAU))
+			sh.oval_inner_radius_ratio = float(d.get("oval_inner_radius_ratio", 0.0))
 			
 		"symbol_instance":
 			el = SymbolInstance.new()
 			var si = el as SymbolInstance
 			si.library_ref = d.get("library_ref", "")
 			si.symbol_type = d.get("symbol_type", "graphic")
+			si.instance_name = d.get("instance_name", "")
 			si.color_effect = d.get("color_effect", "none")
 			var tc = d.get("tint_color", [1.0, 1.0, 1.0, 1.0])
 			si.tint_color = Color(tc[0], tc[1], tc[2], tc[3])
 			si.tint_ratio = float(d.get("tint_ratio", 0.0))
 			si.alpha = float(d.get("alpha", 1.0))
+			si.brightness = float(d.get("brightness", 0.0))
 			si.loop_mode = d.get("loop_mode", "loop")
 			si.first_frame = int(d.get("first_frame", 0))
 			

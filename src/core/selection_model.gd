@@ -45,4 +45,4 @@ func deselect(id: String) -> void:
 func clear() -> void:
 	if not selected_ids.is_empty():
 		selected_ids.clear()
-		selection_changed.emit("", [])
+		selection_changed.emit("", selected_ids)

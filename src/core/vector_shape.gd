@@ -226,11 +226,20 @@ func to_dict() -> Dictionary:
 		var pts: Array = []
 		for p in r["polygon"]: pts.append([p.x, p.y])
 		regs.append({ "polygon": pts, "fill_index": r["fill_index"] })
+	var sp_arr: Array = []
+	for sp in stroke_paths:
+		var pts: Array = []
+		for p in sp.get("points", PackedVector2Array()): pts.append([p.x, p.y])
+		sp_arr.append({ "points": pts, "stroke_index": sp.get("stroke_index", 0) })
+	var edges_arr: Array = []
+	for e in edges: edges_arr.append(e.to_dict())
 	return {
 		"is_drawing_object": is_drawing_object,
 		"fill_styles": fs_arr,
 		"stroke_styles": ss_arr,
-		"fill_regions": regs
+		"fill_regions": regs,
+		"stroke_paths": sp_arr,
+		"edges": edges_arr
 	}
 
 static func from_dict(d: Dictionary) -> VectorShape:
@@ -244,4 +253,10 @@ static func from_dict(d: Dictionary) -> VectorShape:
 		var pts = PackedVector2Array()
 		for p in rd.get("polygon", []): pts.append(Vector2(p[0], p[1]))
 		vs.fill_regions.append({ "polygon": pts, "fill_index": int(rd.get("fill_index", 0)) })
+	for spd in d.get("stroke_paths", []):
+		var pts = PackedVector2Array()
+		for p in spd.get("points", []): pts.append(Vector2(p[0], p[1]))
+		vs.stroke_paths.append({ "points": pts, "stroke_index": int(spd.get("stroke_index", 0)) })
+	for ed in d.get("edges", []):
+		vs.edges.append(Edge.from_dict(ed))
 	return vs

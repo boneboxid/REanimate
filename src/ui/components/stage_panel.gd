@@ -9,6 +9,7 @@ signal item_deleted(id: String)
 signal drawing_finished(new_item: StageItem, center: Vector2)
 signal mouse_stage_pos_changed(pos: Vector2)
 signal symbol_edit_requested(id: String)
+signal context_menu_requested(screen_pos: Vector2, hit_item_id: String)
 
 @onready var stage_container: SubViewportContainer = %StageContainer
 @onready var stage_viewport: SubViewport = %StageViewport
@@ -33,6 +34,7 @@ func _ready() -> void:
 	stage_canvas.item_deleted.connect(func(id): item_deleted.emit(id))
 	stage_canvas.drawing_finished.connect(func(item, c): drawing_finished.emit(item, c))
 	stage_canvas.symbol_edit_requested.connect(func(id): symbol_edit_requested.emit(id))
+	stage_canvas.context_menu_requested.connect(func(pos, id): context_menu_requested.emit(pos, id))
 	
 	btn_zoom_in.pressed.connect(zoom_in)
 	btn_zoom_out.pressed.connect(zoom_out)

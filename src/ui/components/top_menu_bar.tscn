@@ -66,6 +66,14 @@ theme_override_font_sizes/font_size = 11
 tooltip_text = "Save project file (Ctrl+S)"
 text = "Save"
 
+[node name="ProjectMenuBtn" type="MenuButton" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 11
+tooltip_text = "Project Menu & Settings (Ctrl+J)"
+text = "📁 Project"
+
 [node name="VSeparatorFla" type="VSeparator" parent="HBox"]
 layout_mode = 2
 
@@ -179,3 +187,11 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 theme_override_font_sizes/font_size = 11
 tooltip_text = "Toggle Right Inspector Panel"
 text = "◧ Inspector"
+
+[node name="ToggleLibraryBtn" type="Button" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 11
+tooltip_text = "Toggle Flash Library Panel (Ctrl+L)"
+text = "📚 Library"

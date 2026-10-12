@@ -16,6 +16,20 @@ extends Control
 @onready var test_movie_dialog: Window = %TestMovieDialog
 @onready var test_movie_canvas: ColorRect = %TestMovieCanvas
 @onready var test_movie_frame_label: Label = %TestMovieFrameLabel
+@onready var project_settings_dialog: ConfirmationDialog = %ProjectSettingsDialog
+@onready var proj_name_edit: LineEdit = %ProjectNameEdit
+@onready var proj_preset_option: OptionButton = %ProjectPresetOption
+@onready var proj_width_spin: SpinBox = %ProjectWidthSpin
+@onready var proj_height_spin: SpinBox = %ProjectHeightSpin
+@onready var proj_fps_spin: SpinBox = %ProjectFpsSpin
+@onready var proj_max_frames_spin: SpinBox = %ProjectMaxFramesSpin
+@onready var proj_bg_color_picker: ColorPickerButton = %ProjectBgColorPicker
+@onready var proj_info_label: Label = %ProjectInfoLabel
+const ProjectLauncherClass = preload("res://src/ui/components/project_launcher.gd")
+@onready var project_launcher: ProjectLauncherClass = %ProjectLauncher
+const LibraryDockClass = preload("res://src/ui/components/library_dock.gd")
+@onready var library_dock: LibraryDockClass = %LibraryDock
+@onready var stage_context_menu: PopupMenu = %StageContextMenu
 
 # Data Document & Animation State
 var project_doc: ProjectDocument
@@ -84,6 +98,8 @@ func _connect_component_signals() -> void:
 	stage_panel.zoom_changed.connect(_on_stage_zoom_changed)
 	stage_panel.mouse_stage_pos_changed.connect(func(pos): status_bar.set_cursor_position(pos))
 	stage_panel.symbol_edit_requested.connect(_on_edit_symbol_in_place)
+	stage_panel.context_menu_requested.connect(_on_stage_context_menu_requested)
+	stage_context_menu.id_pressed.connect(_on_context_menu_item_selected)
 	
 	stage_panel.stage_canvas.color_sampled.connect(func(sampled_col, is_stroke):
 		if is_stroke:
@@ -147,12 +163,44 @@ func _connect_component_signals() -> void:
 	
 	# 8. Test Movie Dialog
 	test_movie_dialog.close_requested.connect(func(): test_movie_dialog.hide())
+	
+	# 9. Project Settings Dialog
+	project_settings_dialog.confirmed.connect(_on_project_settings_dialog_confirmed)
+	proj_preset_option.clear()
+	proj_preset_option.add_item("Custom", 0)
+	proj_preset_option.add_item("1920 x 1080 (FHD 16:9)", 1)
+	proj_preset_option.add_item("1280 x 720 (HD 16:9)", 2)
+	proj_preset_option.add_item("1080 x 1920 (Mobile 9:16)", 3)
+	proj_preset_option.add_item("1080 x 1080 (Square 1:1)", 4)
+	proj_preset_option.add_item("800 x 450 (Retro 16:9)", 5)
+	proj_preset_option.item_selected.connect(_on_project_dialog_preset_selected)
+	
+	# 10. Project Launcher / Welcome Screen
+	if project_launcher:
+		project_launcher.project_created.connect(_on_launcher_project_created)
+		project_launcher.open_project_requested.connect(_on_open_project_clicked)
+		project_launcher.import_fla_requested.connect(_on_import_fla_clicked)
+		project_launcher.open_recent_requested.connect(_on_launcher_open_recent)
+		project_launcher.launcher_closed.connect(func(): project_launcher.hide())
+		
+	# 11. Library Dock (Ctrl+L / F11)
+	if library_dock:
+		library_dock.symbol_selected.connect(_on_library_symbol_selected)
+		library_dock.symbol_edit_requested.connect(_on_edit_symbol_in_place)
+		library_dock.symbol_place_requested.connect(_on_library_place_symbol)
+		library_dock.symbol_create_requested.connect(_on_library_create_symbol)
+		library_dock.symbol_duplicate_requested.connect(_on_library_duplicate_symbol)
+		library_dock.symbol_rename_requested.connect(_on_library_rename_symbol)
+		library_dock.symbol_delete_requested.connect(_on_library_delete_symbol)
+		library_dock.library_close_requested.connect(func(): library_dock.hide())
 
 func _sync_project_to_ui() -> void:
 	stage_panel.stage_canvas.stage_size = project_doc.stage_size
 	stage_panel.stage_canvas.bg_color = project_doc.bg_color
 	inspector_dock.update_project_data(project_doc.stage_size, project_doc.bg_color)
 	inspector_dock.update_library_list(project_doc.items, selected_item_id)
+	if library_dock:
+		library_dock.refresh_library(project_doc.library)
 	timeline_dock.refresh_layers_ui(project_doc.layers, active_layer_index)
 	timeline_dock.update_frame_info(current_frame, project_doc.max_frames, project_doc.fps)
 
@@ -585,6 +633,10 @@ func _on_toggle_panel(panel_name: String) -> void:
 		"inspector":
 			inspector_dock.visible = !inspector_dock.visible
 			status_bar.set_status("Inspector " + ("visible" if inspector_dock.visible else "hidden"))
+		"library":
+			if library_dock:
+				library_dock.visible = !library_dock.visible
+				status_bar.set_status("Library " + ("visible" if library_dock.visible else "hidden"))
 
 func toggle_tablet_mode() -> void:
 	is_tablet_mode = !is_tablet_mode
@@ -599,6 +651,8 @@ func toggle_tablet_mode() -> void:
 
 # Convert to Symbol Dialog (F8)
 func _open_convert_symbol_dialog() -> void:
+	if file_dialog and file_dialog.visible: file_dialog.hide()
+	if project_settings_dialog and project_settings_dialog.visible: project_settings_dialog.hide()
 	if selected_item_id == "" or not project_doc.items.has(selected_item_id):
 		status_bar.set_status("Please select an item on the stage to convert to Symbol (F8).")
 		return
@@ -617,6 +671,8 @@ func _on_convert_symbol_confirmed() -> void:
 	
 	var sym = project_doc.convert_to_symbol(selected_item_id, sym_name, selected_type, 4)
 	inspector_dock.update_library_list(project_doc.items, selected_item_id)
+	if library_dock:
+		library_dock.refresh_library(project_doc.library, sym.id)
 	_update_stage_at_frame(current_frame)
 	status_bar.set_status("Converted to Symbol '%s' (%s) [F8]" % [sym_name, selected_type.capitalize()])
 
@@ -636,6 +692,151 @@ func _exit_symbol_editing() -> void:
 	_update_stage_at_frame(current_frame)
 	status_bar.set_status("Returned to Scene 1")
 
+# Library Panel Operations
+func _on_library_symbol_selected(symbol_id: String) -> void:
+	if project_doc.library.has(symbol_id):
+		var sym = project_doc.library[symbol_id]
+		status_bar.set_status("Library selected: '%s' [%s]" % [sym.name, sym.symbol_type.capitalize()])
+
+func _on_library_create_symbol(s_name: String, s_type: String, reg_idx: int) -> void:
+	var sym = project_doc.create_symbol(s_name, s_type, reg_idx)
+	if library_dock:
+		library_dock.refresh_library(project_doc.library, sym.id)
+	_on_edit_symbol_in_place(sym.id)
+	status_bar.set_status("Created new symbol '%s' [%s] in Library" % [sym.name, s_type.capitalize()])
+
+func _on_library_place_symbol(symbol_id: String) -> void:
+	if not project_doc.library.has(symbol_id): return
+	var sym: SymbolItem = project_doc.library[symbol_id]
+	if active_layer_index < 0 or active_layer_index >= project_doc.layers.size(): return
+	var layer = project_doc.layers[active_layer_index]
+	if layer.is_locked:
+		status_bar.set_status("Cannot place symbol: Active layer is locked.")
+		return
+		
+	var inst_id = "inst_" + str(Time.get_ticks_usec())
+	var item = StageItem.new()
+	item.id = inst_id
+	item.name = sym.name + " Instance"
+	item.shape_type = "symbol"
+	item.symbol_type = sym.symbol_type
+	item.library_ref = sym.id
+	item.size = Vector2(100, 100)
+	
+	if sym.timeline.layers.size() > 0 and sym.timeline.layers[0].keyframes.size() > 0:
+		var kf = sym.timeline.layers[0].keyframes[0]
+		if kf.elements.size() > 0:
+			var first_el = kf.elements[0]
+			item.color = first_el.color
+			item.stroke_color = first_el.stroke_color
+			item.stroke_width = first_el.stroke_width
+			item.points = first_el.points.duplicate()
+			item.curve_controls = first_el.curve_controls.duplicate()
+			item.sub_paths = first_el.sub_paths.duplicate(true)
+			
+	var t = ItemTransform.new()
+	t.position = project_doc.stage_size * 0.5
+	t.rotation = 0.0
+	t.scale = Vector2.ONE
+	
+	var cmd = DocCommands.AddItemCommand.new(project_doc, layer, current_frame, item, t)
+	command_stack.execute_command(cmd)
+	
+	selected_item_id = item.id
+	stage_panel.stage_canvas.selected_item_id = item.id
+	_update_stage_at_frame(current_frame)
+	_update_inspector_display()
+	status_bar.set_status("Placed symbol instance '%s' onto Stage" % item.name)
+
+func _on_library_duplicate_symbol(symbol_id: String) -> void:
+	var dup = project_doc.duplicate_symbol(symbol_id)
+	if dup != null and library_dock:
+		library_dock.refresh_library(project_doc.library, dup.id)
+		status_bar.set_status("Duplicated symbol: " + dup.name)
+
+func _on_library_rename_symbol(symbol_id: String, new_name: String) -> void:
+	var ok = project_doc.rename_symbol(symbol_id, new_name)
+	if ok and library_dock:
+		library_dock.refresh_library(project_doc.library, symbol_id)
+		status_bar.set_status("Renamed symbol to: " + new_name)
+
+func _on_library_delete_symbol(symbol_id: String) -> void:
+	var ok = project_doc.delete_symbol(symbol_id)
+	if ok and library_dock:
+		library_dock.refresh_library(project_doc.library)
+		status_bar.set_status("Deleted symbol from library.")
+
+# Stage Right-Click Context Menu (Adobe Flash / Animate Standard)
+func _on_stage_context_menu_requested(screen_pos: Vector2, hit_item_id: String) -> void:
+	if not stage_context_menu:
+		return
+	stage_context_menu.clear()
+	
+	var active_id = hit_item_id if hit_item_id != "" else selected_item_id
+	if active_id != "" and project_doc.items.has(active_id):
+		var itm: StageItem = project_doc.items[active_id]
+		
+		# Jika symbol, opsi edit symbol in place di paling atas
+		if (itm.shape_type == "symbol" or itm.symbol_type != "") and itm.library_ref != "":
+			stage_context_menu.add_item("✏️ Edit Symbol in Place", 12)
+			stage_context_menu.add_separator()
+			
+		stage_context_menu.add_item("🌟 Convert to Symbol... (F8)", 1)
+		stage_context_menu.add_item("🔄 Free Transform (Q)", 2)
+		stage_context_menu.add_separator()
+		stage_context_menu.add_item("✂ Cut (Ctrl+X)", 3)
+		stage_context_menu.add_item("📋 Copy (Ctrl+C)", 4)
+		if clipboard_item != null:
+			stage_context_menu.add_item("📋 Paste (Ctrl+V)", 5)
+		stage_context_menu.add_item("⧉ Duplicate (Ctrl+D)", 6)
+		stage_context_menu.add_item("🗑 Delete", 7)
+		stage_context_menu.add_separator()
+		stage_context_menu.add_item("🧩 Group (Ctrl+G)", 8)
+		stage_context_menu.add_item("💥 Break Apart (Ctrl+B)", 9)
+		stage_context_menu.add_separator()
+		stage_context_menu.add_item("🔝 Bring to Front (Ctrl+])", 10)
+		stage_context_menu.add_item("🔻 Send to Back (Ctrl+[)", 11)
+	else:
+		# Area panggung kosong
+		if clipboard_item != null:
+			stage_context_menu.add_item("📋 Paste (Ctrl+V)", 5)
+			stage_context_menu.add_separator()
+		stage_context_menu.add_item("➕ New Symbol... (Ctrl+F8)", 20)
+		stage_context_menu.add_item("⚙ Project Settings... (Ctrl+J)", 21)
+		stage_context_menu.add_item("🔍 Reset View 100% (Ctrl+0)", 22)
+		
+	stage_context_menu.position = Vector2i(int(screen_pos.x), int(screen_pos.y))
+	stage_context_menu.reset_size()
+	stage_context_menu.popup()
+
+func _on_context_menu_item_selected(id: int) -> void:
+	match id:
+		1: _open_convert_symbol_dialog()
+		2:
+			tool_bar.set_active_tool("Transform")
+			_on_tool_selected("Transform")
+		3: _cut_selection()
+		4: _copy_selection()
+		5: _paste_selection()
+		6: _duplicate_selected_item()
+		7: _delete_selected_item()
+		8: _group_selection()
+		9: _break_apart_selection()
+		10: _bring_to_front()
+		11: _send_to_back()
+		12:
+			if selected_item_id != "" and project_doc.items.has(selected_item_id):
+				var itm: StageItem = project_doc.items[selected_item_id]
+				if itm.library_ref != "":
+					_on_edit_symbol_in_place(itm.library_ref)
+		20:
+			if library_dock:
+				library_dock._open_new_symbol_dialog()
+		21: _open_project_settings_dialog()
+		22:
+			stage_panel.reset_camera_view()
+			status_bar.set_status("Camera view reset to 100%.")
+
 # Test Movie Window (Ctrl+Enter)
 func _open_test_movie() -> void:
 	test_movie_dialog.title = "Test Movie: %s (%dx%d @ %dfps)" % [project_doc.name, int(project_doc.stage_size.x), int(project_doc.stage_size.y), project_doc.fps]
@@ -647,20 +848,28 @@ func _open_test_movie() -> void:
 # Menu & File Actions
 func _on_menu_action(action: String) -> void:
 	match action:
+		"project_launcher":
+			_open_project_launcher()
 		"new":
 			_on_new_project()
 		"open":
 			_on_open_project_clicked()
 		"save":
 			_on_save_project_clicked()
-		"import_fla":
-			_on_import_fla_clicked()
+		"project_settings":
+			_open_project_settings_dialog()
+		"project_info":
+			_show_project_info()
+		"export_html":
+			_on_export_html_clicked()
 		"export_fla":
 			_on_export_fla_clicked()
 		"export_json":
 			_on_export_json_clicked()
 		"export_png":
 			_on_export_png_seq_clicked()
+		"import_fla":
+			_on_import_fla_clicked()
 		"convert_symbol":
 			_open_convert_symbol_dialog()
 		"test_movie":
@@ -670,6 +879,79 @@ func _on_menu_action(action: String) -> void:
 			status_bar.set_status("Camera view reset to 100%.")
 		"toggle_tablet":
 			toggle_tablet_mode()
+		"preset_res_1080p":
+			_on_project_settings_changed(Vector2(1920, 1080), project_doc.bg_color)
+		"preset_res_720p":
+			_on_project_settings_changed(Vector2(1280, 720), project_doc.bg_color)
+		"preset_res_mobile":
+			_on_project_settings_changed(Vector2(1080, 1920), project_doc.bg_color)
+		"preset_res_square":
+			_on_project_settings_changed(Vector2(1080, 1080), project_doc.bg_color)
+		"preset_res_retro":
+			_on_project_settings_changed(Vector2(800, 450), project_doc.bg_color)
+		"preset_fps_12":
+			_on_fps_changed(12)
+			status_bar.set_status("Framerate set to 12 FPS (Animation)")
+		"preset_fps_24":
+			_on_fps_changed(24)
+			status_bar.set_status("Framerate set to 24 FPS (Cinema)")
+		"preset_fps_30":
+			_on_fps_changed(30)
+			status_bar.set_status("Framerate set to 30 FPS (Standard)")
+		"preset_fps_60":
+			_on_fps_changed(60)
+			status_bar.set_status("Framerate set to 60 FPS (Smooth)")
+
+func _open_project_launcher() -> void:
+	if project_launcher:
+		project_launcher._load_recent_projects()
+		project_launcher.show()
+
+func _on_launcher_project_created(p_name: String, p_sz: Vector2, p_fps: int, p_max: int, p_bg: Color) -> void:
+	project_doc = ProjectDocument.new()
+	project_doc.name = p_name
+	project_doc.stage_size = p_sz
+	project_doc.fps = p_fps
+	project_doc.max_frames = p_max
+	project_doc.bg_color = p_bg
+	var default_scene = SceneModel.new("Scene 1")
+	default_scene.timeline.max_frames = p_max
+	var layer = AnimationLayer.new()
+	layer.name = "Layer 1"
+	default_scene.timeline.add_layer(layer)
+	project_doc.scenes = [default_scene]
+	command_stack = CommandStack.new()
+	editing_symbol_id = ""
+	active_layer_index = 0
+	current_frame = 0
+	selected_item_id = ""
+	_sync_project_to_ui()
+	_update_stage_at_frame(0)
+	if project_launcher:
+		project_launcher.hide()
+	status_bar.set_status("Created project: " + p_name)
+
+func _on_launcher_open_recent(path: String) -> void:
+	var loaded_doc: ProjectDocument = null
+	if path.get_extension().to_lower() == "fla":
+		loaded_doc = FLAManager.import_from_fla(path)
+	else:
+		loaded_doc = ProjectDocument.load_from_file(path)
+	if loaded_doc != null:
+		project_doc = loaded_doc
+		command_stack = CommandStack.new()
+		editing_symbol_id = ""
+		selected_item_id = ""
+		active_layer_index = 0
+		current_frame = 0
+		_sync_project_to_ui()
+		_update_stage_at_frame(0)
+		if project_launcher:
+			project_launcher.add_recent_project(path)
+			project_launcher.hide()
+		status_bar.set_status("Opened recent project: " + path)
+	else:
+		status_bar.set_status("Failed to open recent project: " + path)
 
 func _on_new_project() -> void:
 	project_doc = ProjectDocument.create_default()
@@ -718,10 +1000,90 @@ func _on_export_png_seq_clicked() -> void:
 	file_dialog.filters = PackedStringArray([])
 	file_dialog.popup_centered(Vector2i(720, 460))
 
+func _on_export_html_clicked() -> void:
+	current_dialog_action = "export_html"
+	file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+	file_dialog.filters = PackedStringArray(["*.html ; HTML5 Canvas Web Player"])
+	file_dialog.popup_centered(Vector2i(720, 460))
+
+func _on_project_dialog_preset_selected(idx: int) -> void:
+	match idx:
+		1:
+			proj_width_spin.value = 1920
+			proj_height_spin.value = 1080
+		2:
+			proj_width_spin.value = 1280
+			proj_height_spin.value = 720
+		3:
+			proj_width_spin.value = 1080
+			proj_height_spin.value = 1920
+		4:
+			proj_width_spin.value = 1080
+			proj_height_spin.value = 1080
+		5:
+			proj_width_spin.value = 800
+			proj_height_spin.value = 450
+
+func _open_project_settings_dialog() -> void:
+	proj_name_edit.text = project_doc.name
+	proj_width_spin.value = project_doc.stage_size.x
+	proj_height_spin.value = project_doc.stage_size.y
+	proj_fps_spin.value = project_doc.fps
+	proj_max_frames_spin.value = project_doc.max_frames
+	proj_bg_color_picker.color = project_doc.bg_color
+	
+	var sz = project_doc.stage_size
+	if sz == Vector2(1920, 1080): proj_preset_option.selected = 1
+	elif sz == Vector2(1280, 720): proj_preset_option.selected = 2
+	elif sz == Vector2(1080, 1920): proj_preset_option.selected = 3
+	elif sz == Vector2(1080, 1080): proj_preset_option.selected = 4
+	elif sz == Vector2(800, 450): proj_preset_option.selected = 5
+	else: proj_preset_option.selected = 0
+	
+	var duration_sec = float(project_doc.max_frames) / float(maxi(1, project_doc.fps))
+	proj_info_label.text = "Duration: %.2fs | Total Items: %d | Total Layers: %d | Library Symbols: %d" % [
+		duration_sec, project_doc.items.size(), project_doc.layers.size(), project_doc.library.size()
+	]
+	project_settings_dialog.popup_centered()
+
+func _on_project_settings_dialog_confirmed() -> void:
+	var new_name = proj_name_edit.text.strip_edges()
+	if new_name != "":
+		project_doc.name = new_name
+	var new_sz = Vector2(proj_width_spin.value, proj_height_spin.value)
+	var new_fps = int(proj_fps_spin.value)
+	var new_max = int(proj_max_frames_spin.value)
+	var new_bg = proj_bg_color_picker.color
+	
+	project_doc.stage_size = new_sz
+	project_doc.fps = new_fps
+	project_doc.max_frames = new_max
+	project_doc.get_active_scene().timeline.max_frames = new_max
+	project_doc.bg_color = new_bg
+	
+	_sync_project_to_ui()
+	_update_stage_at_frame(current_frame)
+	project_settings_dialog.hide()
+	status_bar.set_status("Project settings updated: '%s' (%dx%d @ %dfps, %d frames)" % [
+		project_doc.name, int(new_sz.x), int(new_sz.y), new_fps, new_max
+	])
+
+func _show_project_info() -> void:
+	var duration_sec = float(project_doc.max_frames) / float(maxi(1, project_doc.fps))
+	var info_str = "Project: '%s' | %dx%d | %dfps | %d frames (%.1fs) | %d layers | %d items | %d symbols" % [
+		project_doc.name, int(project_doc.stage_size.x), int(project_doc.stage_size.y),
+		project_doc.fps, project_doc.max_frames, duration_sec,
+		project_doc.layers.size(), project_doc.items.size(), project_doc.library.size()
+	]
+	status_bar.set_status(info_str)
+
 func _on_file_dialog_selected(path: String) -> void:
+	if file_dialog: file_dialog.hide()
 	if current_dialog_action == "save":
 		var err = project_doc.save_to_file(path)
 		if err == OK:
+			if project_launcher:
+				project_launcher.add_recent_project(path)
 			status_bar.set_status("Saved project: " + path)
 		else:
 			status_bar.set_status("Failed to save project. Error: " + str(err))
@@ -741,6 +1103,8 @@ func _on_file_dialog_selected(path: String) -> void:
 			current_frame = 0
 			_sync_project_to_ui()
 			_update_stage_at_frame(0)
+			if project_launcher:
+				project_launcher.add_recent_project(path)
 			status_bar.set_status("Loaded project: " + path)
 		else:
 			status_bar.set_status("Failed to load project file: " + path)
@@ -756,6 +1120,12 @@ func _on_file_dialog_selected(path: String) -> void:
 			status_bar.set_status("Exported Atlas JSON: " + path)
 		else:
 			status_bar.set_status("Export failed. Error: " + str(err))
+	elif current_dialog_action == "export_html":
+		var err = ExportManager.export_html5_player(project_doc, path)
+		if err == OK:
+			status_bar.set_status("Exported HTML5 Web Player: " + path)
+		else:
+			status_bar.set_status("Failed to export HTML5 Web Player. Error: " + str(err))
 
 func _on_dir_dialog_selected(path: String) -> void:
 	if current_dialog_action == "export_png":
@@ -828,6 +1198,16 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				KEY_BRACKETLEFT:
 					_send_to_back()
 					return
+				KEY_J:
+					_open_project_settings_dialog()
+					return
+				KEY_L:
+					_on_toggle_panel("library")
+					return
+				KEY_F8:
+					if library_dock:
+						library_dock._open_new_symbol_dialog()
+					return
 			return
 		
 		# Function Keys (Flash Timeline)
@@ -849,6 +1229,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				_insert_blank_keyframe_at_current()
 			KEY_F8:
 				_open_convert_symbol_dialog()
+			KEY_F11:
+				_on_toggle_panel("library")
 				
 			# Tool selection shortcuts
 			KEY_V:

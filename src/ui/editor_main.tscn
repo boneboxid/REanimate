@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" path="res://src/ui/components/timeline_dock.tscn" id="5_timeline"]
 [ext_resource type="PackedScene" path="res://src/ui/components/inspector_dock.tscn" id="6_inspector"]
 [ext_resource type="PackedScene" path="res://src/ui/components/status_bar.tscn" id="7_status"]
+[ext_resource type="PackedScene" path="res://src/ui/components/project_launcher.tscn" id="8_launcher"]
+[ext_resource type="PackedScene" path="res://src/ui/components/library_dock.tscn" id="9_library"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dark_bg"]
 bg_color = Color(0.11, 0.11, 0.13, 1)
@@ -68,9 +70,18 @@ size_flags_vertical = 3
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="InspectorDock" parent="RootVBox/MiddleArea/StageInspectorSplit" instance=ExtResource("6_inspector")]
+[node name="RightDockSplit" type="VSplitContainer" parent="RootVBox/MiddleArea/StageInspectorSplit"]
+layout_mode = 2
+
+[node name="InspectorDock" parent="RootVBox/MiddleArea/StageInspectorSplit/RightDockSplit" instance=ExtResource("6_inspector")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LibraryDock" parent="RootVBox/MiddleArea/StageInspectorSplit/RightDockSplit" instance=ExtResource("9_library")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="StatusBar" parent="RootVBox" instance=ExtResource("7_status")]
 unique_name_in_owner = true
@@ -82,6 +93,9 @@ title = "Choose File"
 access = 2
 
 [node name="AudioPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+
+[node name="StageContextMenu" type="PopupMenu" parent="."]
 unique_name_in_owner = true
 
 [node name="SymbolDialog" type="ConfirmationDialog" parent="."]
@@ -145,3 +159,106 @@ offset_right = 200.0
 offset_bottom = 34.0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 0.8)
 text = "Playing: Frame 1"
+
+[node name="ProjectSettingsDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Project Settings (Ctrl+J)"
+size = Vector2i(400, 380)
+
+[node name="ProjSetVBox" type="VBoxContainer" parent="ProjectSettingsDialog"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 392.0
+offset_bottom = 331.0
+theme_override_constants/separation = 10
+
+[node name="ProjGrid" type="GridContainer" parent="ProjectSettingsDialog/ProjSetVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="NameLbl" type="Label" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+layout_mode = 2
+text = "Project Name:"
+
+[node name="ProjectNameEdit" type="LineEdit" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Untitled_Animation"
+
+[node name="PresetLbl" type="Label" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+layout_mode = 2
+text = "Resolution Preset:"
+
+[node name="ProjectPresetOption" type="OptionButton" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WidthLbl" type="Label" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+layout_mode = 2
+text = "Width (px):"
+
+[node name="ProjectWidthSpin" type="SpinBox" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 100.0
+max_value = 7680.0
+value = 800.0
+
+[node name="HeightLbl" type="Label" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+layout_mode = 2
+text = "Height (px):"
+
+[node name="ProjectHeightSpin" type="SpinBox" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 100.0
+max_value = 4320.0
+value = 450.0
+
+[node name="FpsLbl" type="Label" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+layout_mode = 2
+text = "Frame Rate (FPS):"
+
+[node name="ProjectFpsSpin" type="SpinBox" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 120.0
+value = 30.0
+
+[node name="MaxFramesLbl" type="Label" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+layout_mode = 2
+text = "Total Frames:"
+
+[node name="ProjectMaxFramesSpin" type="SpinBox" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 9999.0
+value = 60.0
+
+[node name="BgColorLbl" type="Label" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+layout_mode = 2
+text = "Stage Background:"
+
+[node name="ProjectBgColorPicker" type="ColorPickerButton" parent="ProjectSettingsDialog/ProjSetVBox/ProjGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Background Color"
+color = Color(0.98, 0.98, 0.98, 1)
+
+[node name="ProjectInfoLabel" type="Label" parent="ProjectSettingsDialog/ProjSetVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Duration: 2.0s | Items: 1 | Layers: 1"
+
+[node name="ProjectLauncher" parent="." instance=ExtResource("8_launcher")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1

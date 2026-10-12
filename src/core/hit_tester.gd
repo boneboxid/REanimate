@@ -4,7 +4,9 @@ extends RefCounted
 
 static func hit_test_item(item: StageItem, t: ItemTransform, mouse_pos: Vector2) -> bool:
 	if item == null or t == null: return false
-	var local_to_item = (mouse_pos - t.position).rotated(-t.rotation) / t.scale
+	var sx = t.scale.x if absf(t.scale.x) > 0.0001 else (0.0001 if t.scale.x >= 0 else -0.0001)
+	var sy = t.scale.y if absf(t.scale.y) > 0.0001 else (0.0001 if t.scale.y >= 0 else -0.0001)
+	var local_to_item = (mouse_pos - t.position).rotated(-t.rotation) / Vector2(sx, sy)
 	var half_size = item.size * 0.5
 	
 	match item.shape_type:

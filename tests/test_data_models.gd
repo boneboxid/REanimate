@@ -8,6 +8,7 @@ static func run_all_tests() -> void:
 	test_transform_matrix_and_skew()
 	test_timeline_and_scene_model()
 	test_keyframe_easing_and_span_hold()
+	test_edge_cases_and_serialization_integrity()
 	print(">>> ALL PHASE 1 DATA MODEL TESTS PASSED! <<<")
 
 static func test_round_trip_serialization() -> void:
@@ -175,3 +176,56 @@ static func test_keyframe_easing_and_span_hold() -> void:
 	var t_beyond = layer.get_interpolated_transform("box", 35)
 	assert(t_beyond == null, "Frame beyond last keyframe duration must be null (blank)")
 	print("  [OK] 5. Classic tween Flash easing & span hold vs blank frames")
+
+static func test_edge_cases_and_serialization_integrity() -> void:
+	# 1. SelectionModel clear signal typed Array[String]
+	var sm = SelectionModel.new()
+	var signal_log: Array = []
+	sm.selection_changed.connect(func(_primary, ids):
+		signal_log.append(ids)
+	)
+	sm.select("item_1")
+	sm.clear()
+	assert(signal_log.size() >= 2, "Signal selection_changed must emit on select and clear")
+	assert(signal_log[-1].is_empty(), "Last emitted selection must be empty")
+	
+	# 2. HitTester zero scale protection
+	var item = StageItem.new()
+	item.shape_type = "rect"
+	item.size = Vector2(100, 100)
+	var t_zero = ItemTransform.new()
+	t_zero.scale = Vector2.ZERO
+	assert(!HitTester.hit_test_item(item, t_zero, Vector2(50, 50)), "Zero scale hit test must safely return false")
+	
+	# 3. ShapeElement and SymbolInstance full properties round-trip
+	var sh = ShapeElement.new()
+	sh.corner_radius = Vector4(5, 10, 15, 20)
+	sh.oval_start_angle = 0.5
+	sh.oval_end_angle = 3.0
+	sh.oval_inner_radius_ratio = 0.4
+	var sh_dict = sh.to_dict()
+	var loaded_sh = Element.from_dict(sh_dict) as ShapeElement
+	assert(loaded_sh.corner_radius == Vector4(5, 10, 15, 20), "Shape corner_radius must be preserved")
+	assert(absf(loaded_sh.oval_start_angle - 0.5) < 0.001, "Shape oval_start_angle must be preserved")
+	assert(absf(loaded_sh.oval_end_angle - 3.0) < 0.001, "Shape oval_end_angle must be preserved")
+	assert(absf(loaded_sh.oval_inner_radius_ratio - 0.4) < 0.001, "Shape oval_inner_radius_ratio must be preserved")
+	
+	var si = SymbolInstance.new()
+	si.instance_name = "hero_inst"
+	si.brightness = 0.75
+	var si_dict = si.to_dict()
+	var loaded_si = Element.from_dict(si_dict) as SymbolInstance
+	assert(loaded_si.instance_name == "hero_inst", "SymbolInstance instance_name must be preserved")
+	assert(absf(loaded_si.brightness - 0.75) < 0.001, "SymbolInstance brightness must be preserved")
+	
+	# 4. VectorShape stroke_paths and edges round-trip
+	var vs = VectorShape.new()
+	vs.merge_polygon(PackedVector2Array([Vector2(0, 0), Vector2(50, 0), Vector2(50, 50)]), Color.RED, Color.BLACK, 2.0)
+	var edge = VectorShape.Edge.new(Vector2(0, 0), Vector2(10, 20), Vector2(50, 50))
+	vs.edges.append(edge)
+	var vs_dict = vs.to_dict()
+	var loaded_vs = VectorShape.from_dict(vs_dict)
+	assert(loaded_vs.stroke_paths.size() == vs.stroke_paths.size(), "VectorShape stroke_paths must be preserved")
+	assert(loaded_vs.edges.size() == 1, "VectorShape edges must be preserved")
+	assert(loaded_vs.edges[0].c == Vector2(10, 20), "VectorShape edge control point must match")
+	print("  [OK] 6. Serialization integrity & edge cases (HitTester, SelectionModel, VectorShape, Elements)")

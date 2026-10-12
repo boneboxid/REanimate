@@ -11,6 +11,7 @@ signal color_sampled(sampled_color: Color, is_stroke: bool)
 signal camera_pan_requested(relative: Vector2)
 signal camera_zoom_requested(zoom_in: bool, center_pos: Vector2)
 signal symbol_edit_requested(symbol_id: String)
+signal context_menu_requested(screen_pos: Vector2, hit_item_id: String)
 
 var stage_size: Vector2 = Vector2(800, 450)
 var bg_color: Color = Color(0.98, 0.98, 0.98, 1.0)
@@ -523,6 +524,16 @@ func _unhandled_input(event: InputEvent) -> void:
 				middle_pan_prev = event.position
 			else:
 				is_middle_panning = false
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			if event.pressed:
+				var hit_id = _hit_test_item(local_mouse)
+				if hit_id != "":
+					selected_item_id = hit_id
+					selected_item_ids = [hit_id]
+					item_selected.emit(hit_id)
+					item_multi_selected.emit(selected_item_ids)
+					queue_redraw()
+				context_menu_requested.emit(event.global_position, hit_id)
 	elif event is InputEventMouseMotion:
 		if is_middle_panning or (is_space_pressed and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)):
 			var delta = event.position - middle_pan_prev

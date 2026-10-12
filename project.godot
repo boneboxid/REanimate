@@ -12,7 +12,7 @@ config_version=5
 
 config/name="REanimate"
 config/description="2D Animation Suite inspired by Adobe Flash"
-run/main_scene="res://src/ui/editor_main.tscn"
+run/main_scene="uid://df7s8ek3yquh2"
 config/features=PackedStringArray("4.7", "Forward Plus")
 boot_splash/show_image=false
 config/icon="res://icon.svg"

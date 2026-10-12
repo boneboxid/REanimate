@@ -1,0 +1,257 @@
+[gd_scene format=3 uid="uid://c41slc8w617qe"]
+
+[ext_resource type="Script" path="res://src/ui/components/library_dock.gd" id="1_lib"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dock_bg"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.16, 0.16, 0.19, 1)
+border_width_left = 1
+border_color = Color(0.24, 0.24, 0.28, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_preview_bg"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.12, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.22, 0.25, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+content_margin_left = 6.0
+content_margin_top = 3.0
+content_margin_right = 6.0
+content_margin_bottom = 3.0
+bg_color = Color(0.22, 0.23, 0.27, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_primary"]
+content_margin_left = 6.0
+content_margin_top = 3.0
+content_margin_right = 6.0
+content_margin_bottom = 3.0
+bg_color = Color(0.2, 0.45, 0.75, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_danger"]
+content_margin_left = 6.0
+content_margin_top = 3.0
+content_margin_right = 6.0
+content_margin_bottom = 3.0
+bg_color = Color(0.65, 0.2, 0.2, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="LibraryDock" type="PanelContainer"]
+custom_minimum_size = Vector2(230, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_dock_bg")
+script = ExtResource("1_lib")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderHBox" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBox/HeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+text = "📚 Library (Ctrl+L)"
+
+[node name="Spacer" type="Control" parent="VBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BtnCloseLibrary" type="Button" parent="VBox/HeaderHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 11
+tooltip_text = "Close Library Panel"
+text = "✕"
+
+[node name="LibrarySearchEdit" type="LineEdit" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+placeholder_text = "🔍 Filter symbols..."
+clear_button_enabled = true
+
+[node name="PreviewContainer" type="PanelContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_preview_bg")
+
+[node name="PreviewVBox" type="VBoxContainer" parent="VBox/PreviewContainer"]
+layout_mode = 2
+
+[node name="LibraryPreviewCanvas" type="Control" parent="VBox/PreviewContainer/PreviewVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LibraryPreviewInfo" type="Label" parent="VBox/PreviewContainer/PreviewVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.82, 1)
+theme_override_font_sizes/font_size = 10
+text = "No symbol selected"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="ListLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.75, 1)
+theme_override_font_sizes/font_size = 11
+text = "Symbols & Assets:"
+
+[node name="LibraryList" type="ItemList" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+
+[node name="ActionsVBox" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HBoxMain" type="HBoxContainer" parent="VBox/ActionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BtnNewSymbol" type="Button" parent="VBox/ActionsVBox/HBoxMain"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_primary")
+theme_override_font_sizes/font_size = 11
+tooltip_text = "Create New Empty Symbol (Ctrl+F8)"
+text = "➕ New Symbol"
+
+[node name="BtnPlaceOnStage" type="Button" parent="VBox/ActionsVBox/HBoxMain"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_primary")
+theme_override_font_sizes/font_size = 11
+tooltip_text = "Place instance of selected symbol onto stage"
+text = "🎯 Place to Stage"
+
+[node name="HBoxSecondary" type="HBoxContainer" parent="VBox/ActionsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BtnEditSymbol" type="Button" parent="VBox/ActionsVBox/HBoxSecondary"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Edit symbol internal timeline (Double-click item)"
+text = "✏️ Edit"
+
+[node name="BtnDuplicateSymbol" type="Button" parent="VBox/ActionsVBox/HBoxSecondary"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Duplicate selected symbol"
+text = "⧉ Copy"
+
+[node name="BtnRenameSymbol" type="Button" parent="VBox/ActionsVBox/HBoxSecondary"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Rename symbol"
+text = "🏷 Rename"
+
+[node name="BtnDeleteSymbol" type="Button" parent="VBox/ActionsVBox/HBoxSecondary"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_danger")
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Delete symbol from library"
+text = "🗑 Delete"
+
+[node name="NewSymbolDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Create New Symbol (Ctrl+F8)"
+size = Vector2i(320, 180)
+
+[node name="NewSymVBox" type="VBoxContainer" parent="NewSymbolDialog"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 312.0
+offset_bottom = 131.0
+theme_override_constants/separation = 6
+
+[node name="LabelName" type="Label" parent="NewSymbolDialog/NewSymVBox"]
+layout_mode = 2
+text = "Name:"
+
+[node name="NewSymNameEdit" type="LineEdit" parent="NewSymbolDialog/NewSymVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Symbol 1"
+
+[node name="LabelType" type="Label" parent="NewSymbolDialog/NewSymVBox"]
+layout_mode = 2
+text = "Type:"
+
+[node name="NewSymTypeOption" type="OptionButton" parent="NewSymbolDialog/NewSymVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RenameSymbolDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Rename Symbol"
+size = Vector2i(280, 120)
+
+[node name="RenameVBox" type="VBoxContainer" parent="RenameSymbolDialog"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 272.0
+offset_bottom = 71.0
+theme_override_constants/separation = 6
+
+[node name="RenameLabel" type="Label" parent="RenameSymbolDialog/RenameVBox"]
+layout_mode = 2
+text = "Enter new symbol name:"
+
+[node name="RenameSymEdit" type="LineEdit" parent="RenameSymbolDialog/RenameVBox"]
+unique_name_in_owner = true
+layout_mode = 2
