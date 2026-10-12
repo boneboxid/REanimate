@@ -1,53 +1,52 @@
-[gd_scene format=3 uid="uid://bvtimelinedock01"]
+[gd_scene format=3 uid="uid://bvywtimeld01"]
 
 [ext_resource type="Script" path="res://src/ui/components/timeline_dock.gd" id="1_time"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_timeline_bg"]
-content_margin_left = 8.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_time_bg"]
+content_margin_left = 6.0
 content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
-bg_color = Color(0.14, 0.14, 0.17, 1)
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+bg_color = Color(0.18, 0.18, 0.21, 1)
 border_width_top = 1
-border_color = Color(0.24, 0.24, 0.28, 1)
+border_color = Color(0.25, 0.25, 0.3, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
-content_margin_left = 6.0
-content_margin_top = 3.0
-content_margin_right = 6.0
-content_margin_bottom = 3.0
-bg_color = Color(0.2, 0.2, 0.23, 1)
+content_margin_left = 5.0
+content_margin_top = 2.0
+content_margin_right = 5.0
+content_margin_bottom = 2.0
+bg_color = Color(0.24, 0.24, 0.28, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
 [node name="TimelineDock" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 160)
+custom_minimum_size = Vector2(0, 155)
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_timeline_bg")
+theme_override_styles/panel = SubResource("StyleBoxFlat_time_bg")
 script = ExtResource("1_time")
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
 
 [node name="PlaybackControls" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 3
 
 [node name="PlayButton" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(30, 26)
+custom_minimum_size = Vector2(24, 22)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-tooltip_text = "Play / Pause Animation"
+tooltip_text = "Play / Pause Animation (Enter)"
 text = "▶"
 
 [node name="StopBtn" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(26, 26)
+custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 tooltip_text = "Stop and return to Frame 0"
@@ -55,23 +54,23 @@ text = "⏹"
 
 [node name="PrevFrameBtn" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(24, 26)
+custom_minimum_size = Vector2(20, 22)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-tooltip_text = "Previous Frame"
+tooltip_text = "Step 1 Frame Backward (, / <)"
 text = "◀"
 
 [node name="NextFrameBtn" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(24, 26)
+custom_minimum_size = Vector2(20, 22)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-tooltip_text = "Next Frame"
+tooltip_text = "Step 1 Frame Forward (. / >)"
 text = "▶"
 
 [node name="LoopBtn" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(26, 26)
+custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 tooltip_text = "Toggle Loop Playback"
@@ -84,22 +83,48 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-tooltip_text = "Insert Keyframe at current frame (F6)"
-text = "+ KF"
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Insert Keyframe (F6)"
+text = "+KF"
+
+[node name="InsertBlankKeyframeBtn" type="Button" parent="VBox/PlaybackControls"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Insert Blank Keyframe (F7)"
+text = "○Blank"
+
+[node name="InsertFrameBtn" type="Button" parent="VBox/PlaybackControls"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Insert Frame Span (F5)"
+text = "+Span"
 
 [node name="RemoveKeyframeBtn" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-tooltip_text = "Remove Keyframe at current frame (F7)"
-text = "- KF"
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Clear Keyframe (Shift+F6)"
+text = "Clear"
+
+[node name="RemoveFrameBtn" type="Button" parent="VBox/PlaybackControls"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Remove Frame Span (Shift+F5)"
+text = "-Span"
 
 [node name="FrameLabel" type="Label" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.9, 0.92, 1)
-theme_override_font_sizes/font_size = 12
-text = "0 / 60 (0.00s)"
+theme_override_font_sizes/font_size = 10
+text = "1 / 60 (0.00s)"
 
 [node name="Spacer" type="Control" parent="VBox/PlaybackControls"]
 layout_mode = 2
@@ -108,8 +133,9 @@ size_flags_horizontal = 3
 [node name="OnionSkinCheck" type="CheckBox" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
 layout_mode = 2
-tooltip_text = "Toggle Ghost Onion Skinning for previous and next frames"
-text = "Onion"
+theme_override_font_sizes/font_size = 10
+tooltip_text = "Toggle Onion Skinning"
+text = "🧅"
 
 [node name="VSeparator2" type="VSeparator" parent="VBox/PlaybackControls"]
 layout_mode = 2
@@ -117,12 +143,12 @@ layout_mode = 2
 [node name="FpsLabel" type="Label" parent="VBox/PlaybackControls"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
-theme_override_font_sizes/font_size = 11
-text = "FPS:"
+theme_override_font_sizes/font_size = 10
+text = "FPS"
 
 [node name="FpsSpin" type="SpinBox" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(65, 0)
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 min_value = 1.0
 max_value = 120.0
@@ -131,15 +157,15 @@ value = 30.0
 [node name="MaxFramesLabel" type="Label" parent="VBox/PlaybackControls"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
-theme_override_font_sizes/font_size = 11
-text = "Total:"
+theme_override_font_sizes/font_size = 10
+text = "Len"
 
 [node name="MaxFramesSpin" type="SpinBox" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(65, 0)
+custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
 min_value = 5.0
-max_value = 600.0
+max_value = 1200.0
 value = 60.0
 
 [node name="VSeparator3" type="VSeparator" parent="VBox/PlaybackControls"]
@@ -147,21 +173,21 @@ layout_mode = 2
 
 [node name="TimelineZoomOutBtn" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 tooltip_text = "Zoom out timeline grid"
 text = "-"
 
 [node name="TimelineZoomInBtn" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 tooltip_text = "Zoom in timeline grid"
 text = "+"
 
 [node name="CollapseBtn" type="Button" parent="VBox/PlaybackControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 tooltip_text = "Collapse / Expand Timeline Content"
 text = "▼"
@@ -179,10 +205,10 @@ size_flags_vertical = 4
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="LayersSide" type="VBoxContainer" parent="VBox/TimelineContentHBox"]
-custom_minimum_size = Vector2(160, 0)
+custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 
 [node name="LayerHeaderHBox" type="HBoxContainer" parent="VBox/TimelineContentHBox/LayersSide"]
@@ -193,13 +219,49 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-text = "+ Layer"
+theme_override_font_sizes/font_size = 10
+text = "+Layer"
+
+[node name="AddAudioLayerBtn" type="Button" parent="VBox/TimelineContentHBox/LayersSide/LayerHeaderHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_font_sizes/font_size = 10
+text = "+Audio"
 
 [node name="RemoveLayerBtn" type="Button" parent="VBox/TimelineContentHBox/LayersSide/LayerHeaderHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-text = "- Del"
+theme_override_font_sizes/font_size = 10
+text = "-Del"
+
+[node name="LayerControlsHeader" type="HBoxContainer" parent="VBox/TimelineContentHBox/LayersSide"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="EyeToggleAll" type="Button" parent="VBox/TimelineContentHBox/LayersSide/LayerControlsHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 18)
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+tooltip_text = "Toggle Visibility of Selected Layer (Eye)"
+text = "👁"
+
+[node name="LockToggleAll" type="Button" parent="VBox/TimelineContentHBox/LayersSide/LayerControlsHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 18)
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+tooltip_text = "Toggle Lock of Selected Layer (Lock)"
+text = "🔒"
+
+[node name="LayerStripLabel" type="Label" parent="VBox/TimelineContentHBox/LayersSide/LayerControlsHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 9
+text = "Layers / Audio"
 
 [node name="LayerList" type="ItemList" parent="VBox/TimelineContentHBox/LayersSide"]
 unique_name_in_owner = true

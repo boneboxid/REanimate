@@ -3,9 +3,12 @@ extends PanelContainer
 
 signal zoom_changed(zoom_factor: float)
 signal item_selected(id: String)
+signal item_multi_selected(ids: Array[String])
 signal item_transformed(id: String, new_t: ItemTransform)
+signal item_deleted(id: String)
 signal drawing_finished(new_item: StageItem, center: Vector2)
 signal mouse_stage_pos_changed(pos: Vector2)
+signal symbol_edit_requested(id: String)
 
 @onready var stage_container: SubViewportContainer = %StageContainer
 @onready var stage_viewport: SubViewport = %StageViewport
@@ -25,8 +28,11 @@ func _ready() -> void:
 	stage_viewport.add_child(stage_canvas)
 	
 	stage_canvas.item_selected.connect(func(id): item_selected.emit(id))
+	stage_canvas.item_multi_selected.connect(func(ids): item_multi_selected.emit(ids))
 	stage_canvas.item_transformed.connect(func(id, t): item_transformed.emit(id, t))
+	stage_canvas.item_deleted.connect(func(id): item_deleted.emit(id))
 	stage_canvas.drawing_finished.connect(func(item, c): drawing_finished.emit(item, c))
+	stage_canvas.symbol_edit_requested.connect(func(id): symbol_edit_requested.emit(id))
 	
 	btn_zoom_in.pressed.connect(zoom_in)
 	btn_zoom_out.pressed.connect(zoom_out)
@@ -64,9 +70,16 @@ func handle_key_input(event: InputEventKey) -> bool:
 			is_space_pressed = false
 			is_panning = false
 			return true
-	elif event.is_pressed() and not event.is_echo() and event.keycode == KEY_0 and event.ctrl_pressed:
-		reset_camera_view()
-		return true
+	elif event.is_pressed() and not event.is_echo() and event.ctrl_pressed:
+		if event.keycode == KEY_0:
+			reset_camera_view()
+			return true
+		elif event.keycode == KEY_1:
+			set_camera_zoom(Vector2(1.0, 1.0))
+			return true
+		elif event.keycode == KEY_2:
+			set_camera_zoom(Vector2(2.0, 2.0))
+			return true
 	return false
 
 func handle_mouse_input(event: InputEvent) -> bool:

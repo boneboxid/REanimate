@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://df7s8ek3yquh2"]
 
-[ext_resource type="Script" uid="uid://c00s4odndqwir" path="res://src/ui/editor_main.gd" id="1_editor"]
+[ext_resource type="Script" path="res://src/ui/editor_main.gd" id="1_editor"]
 [ext_resource type="PackedScene" path="res://src/ui/components/top_menu_bar.tscn" id="2_menu"]
 [ext_resource type="PackedScene" path="res://src/ui/components/tool_bar.tscn" id="3_tools"]
 [ext_resource type="PackedScene" path="res://src/ui/components/stage_panel.tscn" id="4_stage"]
@@ -80,3 +80,68 @@ layout_mode = 2
 unique_name_in_owner = true
 title = "Choose File"
 access = 2
+
+[node name="AudioPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+
+[node name="SymbolDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Convert to Symbol (F8)"
+size = Vector2i(320, 220)
+
+[node name="SymbolVBox" type="VBoxContainer" parent="SymbolDialog"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 312.0
+offset_bottom = 171.0
+theme_override_constants/separation = 8
+
+[node name="SymNameLabel" type="Label" parent="SymbolDialog/SymbolVBox"]
+layout_mode = 2
+text = "Name:"
+
+[node name="SymNameEdit" type="LineEdit" parent="SymbolDialog/SymbolVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Symbol 1"
+
+[node name="SymTypeLabel" type="Label" parent="SymbolDialog/SymbolVBox"]
+layout_mode = 2
+text = "Type:"
+
+[node name="SymTypeOption" type="OptionButton" parent="SymbolDialog/SymbolVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 3
+popup/item_0/text = "Graphic"
+popup/item_0/id = 0
+popup/item_1/text = "Movie Clip"
+popup/item_1/id = 1
+popup/item_2/text = "Button"
+popup/item_2/id = 2
+
+[node name="TestMovieDialog" type="Window" parent="."]
+unique_name_in_owner = true
+title = "Test Movie (Preview) - Press ESC or Close to Exit"
+size = Vector2i(854, 480)
+visible = false
+transient = true
+
+[node name="TestMovieCanvas" type="ColorRect" parent="TestMovieDialog"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.12, 0.14, 1)
+
+[node name="TestMovieFrameLabel" type="Label" parent="TestMovieDialog"]
+unique_name_in_owner = true
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 34.0
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 0.8)
+text = "Playing: Frame 1"

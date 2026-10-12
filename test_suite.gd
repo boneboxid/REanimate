@@ -35,7 +35,45 @@ func _init() -> void:
 	var box_id = doc.items.keys()[0]
 	var t_half = doc.layers[0].get_interpolated_transform(box_id, 15)
 	assert(t_half != null, "Interpolated transform at frame 15 must exist")
-	print("OK: Interpolated Tweening at frame 15: pos =", t_half.position)
+	# 6. Quick Wins Tests
+	const TestQuickWinsScript = preload("res://tests/test_quick_wins.gd")
+	TestQuickWinsScript.run_all_tests()
 	
-	print("--- ALL 5 ENGINE TESTS PASSED SUCCESSFULLY! ---")
+	# 7. Phase 1 Data Model Tests
+	const TestDataModelsScript = preload("res://tests/test_data_models.gd")
+	TestDataModelsScript.run_all_tests()
+	
+	# 8. Phase 2 Undo/Redo Tests
+	const TestUndoRedoScript = preload("res://tests/test_undo_redo.gd")
+	TestUndoRedoScript.run_all_tests()
+	
+	# 9. Phase 3 Flash Vector Engine Tests
+	const TestVectorEngineScript = preload("res://tests/test_vector_engine.gd")
+	TestVectorEngineScript.run_all_tests()
+	
+	# 10. Phase 4 Drawing Tools Tests
+	const TestDrawingToolsScript = preload("res://tests/test_drawing_tools.gd")
+	TestDrawingToolsScript.run_all_tests()
+	
+	# 11. Phase 5 Timeline & Tweening Tests
+	const TestTimelineTweenScript = preload("res://tests/test_timeline_tween.gd")
+	TestTimelineTweenScript.run_all_tests()
+	
+	# 12. Phase 6 Symbol & Library Tests
+	const TestSymbolLibraryScript = preload("res://tests/test_symbol_library.gd")
+	TestSymbolLibraryScript.run_all_tests()
+	
+	# 13. Phase 7 Real FLA Compatibility Tests
+	const TestFLACompatibilityScript = preload("res://tests/test_fla_compatibility.gd")
+	TestFLACompatibilityScript.run_all_tests()
+	
+	# 14. Phase 8 & 9 UI Shortcuts, Export & Mobile Tests
+	const TestUIShortcutsAndExportScript = preload("res://tests/test_ui_shortcuts_and_export.gd")
+	TestUIShortcutsAndExportScript.run_all_tests()
+	
+	# 15. Editor Runtime Smoke Tests
+	const TestEditorRuntimeScript = preload("res://tests/test_editor_runtime.gd")
+	await TestEditorRuntimeScript.run_all_tests(self)
+	
+	print("--- ALL ENGINE, QUICK WINS, AND ALL PHASES 1 THROUGH 9 TESTS PASSED SUCCESSFULLY! ---")
 	quit()
