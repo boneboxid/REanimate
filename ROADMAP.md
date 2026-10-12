@@ -155,6 +155,7 @@ flowchart LR
     Fase5 --> Fase6["Fase 6: .FLA Import/Export Converter"]
     Fase6 --> Fase7["Fase 7: Android Tablet & Stylus Support"]
     Fase7 --> Fase8["Fase 8: Production Release & CI/CD"]
+    Fase8 --> Fase9["Fase 9: Advanced Features & Scripting"]
 ```
 
 ---
@@ -265,6 +266,17 @@ flowchart LR
   - Runtime Windows Desktop dan mobile ready.
 
 ---
+
+
+---
+
+### **Fase 9: Advanced Features & Scripting (BELUM IMPLEMENTASI ❌)**
+> **Status**: Fitur tingkat lanjut Adobe Animate yang belum tersedia di REanimate berdasarkan dokumentasi resmi.
+- [ ] **ActionScript 3.0 Scripting Support**: Integrasi scripting untuk interaktivitas.
+- [ ] **WebGL & SVG Animation Export**: Ekspor native ke format WebGL dan Scalable Vector Graphics (SVG).
+- [ ] **Raster Graphics & Rich Text Support**: Dukungan penuh untuk manipulasi gambar raster dan rich text.
+- [ ] **Audio Video Embedding**: Menanamkan dan mengontrol video/audio secara native di dalam timeline.
+- [ ] **Legacy Flash Player (SWF) & Adobe AIR Export**: Kompatibilitas kompilasi ke format SWF lawas dan AIR runtime.
 
 ## 🛠️ VII. Ringkasan File & Direktori Proyek
 
